@@ -4,7 +4,7 @@ services:
   mifosx-web-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
       args:
         - BUILD_ENVIRONMENT_OPTIONS=--configuration production
         - BUILDER_IMAGE=node:20-alpine
