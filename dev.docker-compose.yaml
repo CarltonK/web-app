@@ -4,7 +4,7 @@ services:
   mifosx-web-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
       args:
         - BUILD_ENVIRONMENT_OPTIONS=--configuration production
         - BUILDER_IMAGE=node:20-alpine
@@ -13,7 +13,9 @@ services:
         - PUPPETEER_DOWNLOAD_HOST_ARG=https://storage.googleapis.com
         - PUPPETEER_CHROMIUM_REVISION_ARG=1011831
     ports:
-      - 4200:80
+      - 4200:4200
+    volumes:
+      - .:/usr/src/app
     environment:
       - FINERACT_API_URLS=https://dev.gcipay.us,https://dev.mifos.io,https://demo.mifos.io,https://qa.mifos.io,https://staging.mifos.io,https://mobile.mifos.io,https://demo.fineract.dev,https://localhost:8443
       - FINERACT_API_URL=https://dev.gcipay.us
