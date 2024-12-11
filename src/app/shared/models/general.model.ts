@@ -39,6 +39,22 @@ export interface PaymentChannelToFundSourceMapping {
   fundSourceAccount: AccountingMapping;
 }
 
+export interface ChargeOffReasonsToGLAccountMapping {
+  chargeOffReasonCodeValueId?: number;
+  chargeOffReason? : OptionData;
+  chargeOffReasonsCodeValue?:  ChargeOffReasonsCodeValue;
+  chargeOffExpenseAccount?: AccountingMapping;
+}
+
+export interface ChargeOffReasonsCodeValue {
+  active: boolean;
+  description: string;
+  id: number;
+  mandatory: boolean;
+  name: string;
+  position?: number;
+}
+
 export interface PaymentType {
   id:              number;
   name:            string;

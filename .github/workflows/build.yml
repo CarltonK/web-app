@@ -19,7 +19,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Use Node.js 19
         uses: actions/setup-node@v1
@@ -34,15 +34,15 @@ jobs:
       - name: Npm install
         run: npm install
 
-      - name: Run tslint
-        run : npx tslint src/**/*.ts
+      - name: Run eslint
+        run : npx ng lint
 
       - name: Run build
         run : npm run build:prod
 
       - name: Deploy to github pages
         if: ${{ github.event_name == 'push' }}
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages

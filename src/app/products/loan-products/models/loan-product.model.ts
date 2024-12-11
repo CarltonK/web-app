@@ -1,4 +1,4 @@
-import { AccountingMapping, ChargeToIncomeAccountMapping, Currency, PaymentChannelToFundSourceMapping } from 'app/shared/models/general.model';
+import {AccountingMapping, ChargeOffReasonsToGLAccountMapping, ChargeToIncomeAccountMapping, Currency, PaymentChannelToFundSourceMapping} from 'app/shared/models/general.model';
 import { OptionData, StringEnumOptionData } from 'app/shared/models/option-data.model';
 import { CreditAllocation, PaymentAllocation } from '../loan-product-stepper/loan-product-payment-strategy-step/payment-allocation-model';
 
@@ -52,6 +52,7 @@ export interface LoanProduct {
   recalculationCompoundingFrequencyType?:                    number;
   recalculationRestFrequencyType?:                           number;
   allowCompoundingOnEod?:                                    boolean;
+  disallowInterestCalculationOnPastDue?:                     boolean;
   isArrearsBasedOnOriginalSchedule?:                         boolean;
   isCompoundingToBePostedAsTransaction?:                     boolean;
   recalculationRestFrequencyInterval?:                       number;
@@ -124,8 +125,10 @@ export interface LoanProduct {
   paymentChannelToFundSourceMappings?:                       PaymentChannelToFundSourceMapping[];
   feeToIncomeAccountMappings?:                               ChargeToIncomeAccountMapping[];
   penaltyToIncomeAccountMappings?:                           ChargeToIncomeAccountMapping[];
+  chargeOffReasonToGLAccountMappings?:                       ChargeOffReasonsToGLAccountMapping[];
   enableAccrualActivityPosting?:                             boolean;
   supportedInterestRefundTypes?:                             StringEnumOptionData[];
+  chargeOffBehaviour?:                                       StringEnumOptionData;
 }
 
 
@@ -167,4 +170,5 @@ export interface InterestRecalculationData {
   isCompoundingToBePostedAsTransaction:   boolean;
   preClosureInterestCalculationStrategy:  OptionData;
   allowCompoundingOnEod:                  boolean;
+  disallowInterestCalculationOnPastDue:   boolean;
 }
