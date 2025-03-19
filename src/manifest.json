@@ -1,17 +1,17 @@
 {
-  "short_name": "GCIPay",
-  "name": "Green Capital Private Bank",
+  "short_name": "MifosX",
+  "name": "MifosX Web App",
   "start_url": "/",
   "scope": "/",
   "theme_color": "#fff",
   "background_color": "#fff",
   "display": "standalone",
-  "description": "A Banking and Financial Platform powered by Green Capital IPay.",
+  "description": "MifosX Web App is the default web application built on top of the Fineract platform for the Mifos user community leveraging the popular Angular framework.",
   "icons": [
     {
-      "src": "assets/images/green_capital_ipay.jpeg",
+      "src": "assets/images/MifosX_logo.png",
       "sizes": "182x184",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
