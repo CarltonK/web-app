@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WorkflowJobsComponent } from './workflow-job.component';
+import { WorkflowJobsComponent } from './workflow-jobs.component';
 
 describe('WorkflowJobsComponent', () => {
   let component: WorkflowJobsComponent;
@@ -8,9 +8,8 @@ describe('WorkflowJobsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WorkflowJobsComponent ]
-    })
-    .compileComponents();
+      declarations: [WorkflowJobsComponent]
+    }).compileComponents();
   });
 
   beforeEach(() => {

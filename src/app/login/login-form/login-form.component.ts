@@ -1,6 +1,6 @@
 /** Angular Imports */
 import { Component, OnInit } from '@angular/core';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 /** rxjs Imports */
 import { finalize } from 'rxjs/operators';
@@ -17,11 +17,10 @@ import { AuthenticationService } from '../../core/authentication/authentication.
   styleUrls: ['./login-form.component.scss']
 })
 export class LoginFormComponent implements OnInit {
-
   /** Login form group. */
-  loginForm: UntypedFormGroup;
+  loginForm: FormGroup;
   /** Password input field type. */
-  passwordInputType: string;
+  passwordInputType: string = 'password';
   /** True if loading. */
   loading = false;
 
@@ -29,8 +28,10 @@ export class LoginFormComponent implements OnInit {
    * @param {FormBuilder} formBuilder Form Builder.
    * @param {AuthenticationService} authenticationService Authentication Service.
    */
-  constructor(private formBuilder: UntypedFormBuilder,
-              private authenticationService: AuthenticationService) {  }
+  constructor(
+    private formBuilder: FormBuilder,
+    private authenticationService: AuthenticationService
+  ) {}
 
   /**
    * Creates login form.
@@ -39,7 +40,6 @@ export class LoginFormComponent implements OnInit {
    */
   ngOnInit() {
     this.createLoginForm();
-    this.passwordInputType = 'password';
   }
 
   /**
@@ -48,14 +48,28 @@ export class LoginFormComponent implements OnInit {
   login() {
     this.loading = true;
     this.loginForm.disable();
-    this.authenticationService.login(this.loginForm.value)
-      .pipe(finalize(() => {
-        this.loginForm.reset();
-        this.loginForm.markAsPristine();
-        // Angular Material Bug: Validation errors won't get removed on reset.
-        this.loginForm.enable();
-        this.loading = false;
-      })).subscribe();
+    this.authenticationService
+      .login(this.loginForm.value)
+      .pipe(
+        finalize(() => {
+          this.loginForm.reset();
+          this.loginForm.markAsPristine();
+          // Angular Material Bug: Validation errors won't get removed on reset.
+          this.loginForm.enable();
+          this.loading = false;
+        })
+      )
+      .subscribe();
+  }
+
+  /**
+   * Toggles the visibility of the password input field.
+   *
+   * Changes the input type between 'password' and 'text'.
+   */
+
+  togglePasswordVisibility() {
+    this.passwordInputType = this.passwordInputType === 'password' ? 'text' : 'password';
   }
 
   /**
@@ -66,14 +80,39 @@ export class LoginFormComponent implements OnInit {
   }
 
   /**
-   * Creates login form.
+   * Creates login form with validation rules.
    */
+
   private createLoginForm() {
     this.loginForm = this.formBuilder.group({
-      'username': ['', Validators.required],
-      'password': ['', Validators.required],
-      'remember': false
+      username: [
+        '',
+        Validators.required
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8)]
+      ],
+      remember: false
     });
   }
 
+  /**
+   * Returns the appropriate error message for the specified form control.
+   *
+   * @param {string} controlName - The name of the form control.
+   * @returns {string} - The error message.
+   */
+
+  getErrorMessage(controlName: string): string {
+    const control = this.loginForm.get(controlName);
+    if (control?.hasError('required')) {
+      return 'This field is required';
+    } else if (control?.hasError('minlength')) {
+      return `Minimum length is ${control.errors?.minlength.requiredLength}`;
+    }
+    return '';
+  }
 }

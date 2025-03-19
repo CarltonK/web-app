@@ -17,20 +17,26 @@ export class ExternalIdentifierComponent implements OnInit {
   displayR = true;
   emptyValue = false;
 
-  constructor(private clipboard: Clipboard,
-    private alertService: AlertService) { }
+  constructor(
+    private clipboard: Clipboard,
+    private alertService: AlertService
+  ) {}
 
   ngOnInit(): void {
-    this.emptyValue = (!this.externalId || this.externalId === '');
-    this.displayL = (this.display === 'left');
-    this.displayR = (this.display === 'right');
+    this.emptyValue = !this.externalId || this.externalId === '';
+    this.displayL = this.display === 'left';
+    this.displayR = this.display === 'right';
   }
 
   isLongValue(): boolean {
     if (this.externalId == null) {
       return false;
     }
-    return (this.externalId.length > 15);
+    return this.externalId.length > 15;
+  }
+
+  showValue() {
+    this.completed = !this.completed;
   }
 
   copyValue(): void {

@@ -14,17 +14,28 @@ export class LongTextComponent implements OnInit {
   displayR = true;
   emptyValue = false;
 
-  constructor() { }
+  printChars = 30;
+
+  constructor() {}
 
   ngOnInit(): void {
-    this.emptyValue = (!this.textValue || this.textValue === '');
+    this.emptyValue = !this.textValue || this.textValue === '';
+    this.printChars = this.chars;
   }
 
   isLongValue(): boolean {
     if (this.textValue == null) {
       return false;
     }
-    return (this.textValue.length > 25);
+    return this.textValue.length > 25;
+  }
+
+  showValue() {
+    if (this.printChars == 30) {
+      this.printChars = 1000;
+    } else {
+      this.printChars = 30;
+    }
   }
 
   mouseEnter() {

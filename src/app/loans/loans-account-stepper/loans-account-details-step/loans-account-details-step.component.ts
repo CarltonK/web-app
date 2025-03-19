@@ -3,6 +3,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { UntypedFormGroup, UntypedFormBuilder, Validators, UntypedFormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsService } from 'app/settings/settings.service';
+import { TranslateService } from '@ngx-translate/core';
 
 /** Custom Services */
 import { LoansService } from '../../loans.service';
@@ -19,6 +20,9 @@ import { ReplaySubject, Subject } from 'rxjs';
   styleUrls: ['./loans-account-details-step.component.scss']
 })
 export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
+  //** Defining PlaceHolders for the search bar */
+  placeHolderLabel = '';
+  noEntriesFoundLabel = '';
 
   /** Loans Account Template */
   @Input() loansAccountTemplate: any;
@@ -60,15 +64,20 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
    * @param {LoansService} loansService Loans Service.
    * @param {SettingsService} settingsService SettingsService
    */
-  constructor(private formBuilder: UntypedFormBuilder,
+  constructor(
+    private formBuilder: UntypedFormBuilder,
     private loansService: LoansService,
     private route: ActivatedRoute,
+    private translateService: TranslateService,
     private settingsService: SettingsService,
-    private commons: Commons) {
+    private commons: Commons
+  ) {
     this.loanId = this.route.snapshot.params['loanId'];
   }
 
   ngOnInit() {
+    this.placeHolderLabel = this.translateService.instant('labels.text.Search');
+    this.noEntriesFoundLabel = this.translateService.instant('labels.text.No data found');
     this.createLoansAccountDetailsForm();
     this.maxDate = this.settingsService.maxFutureDate;
     this.buildDependencies();
@@ -76,19 +85,21 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
       this.productList = this.loansAccountTemplate.productOptions.sort(this.commons.dynamicSort('name'));
       if (this.loansAccountTemplate.loanProductId) {
         this.loansAccountDetailsForm.patchValue({
-          'productId': this.loansAccountTemplate.loanProductId,
-          'submittedOnDate': this.loansAccountTemplate.timeline.submittedOnDate && new Date(this.loansAccountTemplate.timeline.submittedOnDate),
-          'loanOfficerId': this.loansAccountTemplate.loanOfficerId,
-          'loanPurposeId': this.loansAccountTemplate.loanPurposeId,
-          'fundId': this.loansAccountTemplate.fundId,
-          'expectedDisbursementDate': this.loansAccountTemplate.timeline.expectedDisbursementDate && new Date(this.loansAccountTemplate.timeline.expectedDisbursementDate),
-          'externalId': this.loansAccountTemplate.externalId
+          productId: this.loansAccountTemplate.loanProductId,
+          submittedOnDate:
+            this.loansAccountTemplate.timeline.submittedOnDate &&
+            new Date(this.loansAccountTemplate.timeline.submittedOnDate),
+          loanOfficerId: this.loansAccountTemplate.loanOfficerId,
+          loanPurposeId: this.loansAccountTemplate.loanPurposeId,
+          fundId: this.loansAccountTemplate.fundId,
+          expectedDisbursementDate:
+            this.loansAccountTemplate.timeline.expectedDisbursementDate &&
+            new Date(this.loansAccountTemplate.timeline.expectedDisbursementDate),
+          externalId: this.loansAccountTemplate.externalId
         });
       }
     }
-    this.filterFormCtrl.valueChanges
-    .pipe(takeUntil(this._onDestroy))
-    .subscribe(() => {
+    this.filterFormCtrl.valueChanges.pipe(takeUntil(this._onDestroy)).subscribe(() => {
       this.searchItem();
     });
     this.productData.next(this.productList.slice());
@@ -104,11 +115,13 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
       const search: string = this.filterFormCtrl.value.toLowerCase();
 
       if (!search) {
-          this.productData.next(this.productList.slice());
+        this.productData.next(this.productList.slice());
       } else {
-        this.productData.next(this.productList.filter((option: any) => {
-          return option['name'].toLowerCase().indexOf(search) >= 0;
-        }));
+        this.productData.next(
+          this.productList.filter((option: any) => {
+            return option['name'].toLowerCase().indexOf(search) >= 0;
+          })
+        );
       }
     }
   }
@@ -118,15 +131,24 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
    */
   createLoansAccountDetailsForm() {
     this.loansAccountDetailsForm = this.formBuilder.group({
-      'productId': ['', Validators.required],
-      'loanOfficerId': [''],
-      'loanPurposeId': [''],
-      'fundId': [''],
-      'submittedOnDate': [this.settingsService.businessDate, Validators.required],
-      'expectedDisbursementDate': ['', Validators.required],
-      'externalId': [''],
-      'linkAccountId': [''],
-      'createStandingInstructionAtDisbursement': ['']
+      productId: [
+        '',
+        Validators.required
+      ],
+      loanOfficerId: [''],
+      loanPurposeId: [''],
+      fundId: [''],
+      submittedOnDate: [
+        this.settingsService.businessDate,
+        Validators.required
+      ],
+      expectedDisbursementDate: [
+        '',
+        Validators.required
+      ],
+      externalId: [''],
+      linkAccountId: [''],
+      createStandingInstructionAtDisbursement: ['']
     });
   }
 
@@ -134,8 +156,10 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
    * Fetches loans account product template on productId value changes
    */
   buildDependencies() {
-    const entityId = (this.loansAccountTemplate.clientId) ? this.loansAccountTemplate.clientId : this.loansAccountTemplate.group.id;
-    const isGroup = (this.loansAccountTemplate.clientId) ? false : true;
+    const entityId = this.loansAccountTemplate.clientId
+      ? this.loansAccountTemplate.clientId
+      : this.loansAccountTemplate.group.id;
+    const isGroup = this.loansAccountTemplate.clientId ? false : true;
     this.loansAccountDetailsForm.get('productId').valueChanges.subscribe((productId: string) => {
       this.loansService.getLoansAccountTemplateResource(entityId, isGroup, productId).subscribe((response: any) => {
         this.loansAccountProductTemplate.emit(response);
@@ -145,7 +169,9 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
         this.accountLinkingOptions = response.accountLinkingOptions;
         this.loanProductSelected = true;
         if (response.createStandingInstructionAtDisbursement) {
-          this.loansAccountDetailsForm.get('createStandingInstructionAtDisbursement').patchValue(response.createStandingInstructionAtDisbursement);
+          this.loansAccountDetailsForm
+            .get('createStandingInstructionAtDisbursement')
+            .patchValue(response.createStandingInstructionAtDisbursement);
         }
       });
     });
@@ -157,5 +183,4 @@ export class LoansAccountDetailsStepComponent implements OnInit, OnDestroy {
   get loansAccountDetails() {
     return this.loansAccountDetailsForm.getRawValue();
   }
-
 }

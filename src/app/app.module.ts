@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpClientModule } from '@angular/common/http';
 
 /** Environment Configuration */
 
@@ -35,13 +35,25 @@ import { CollectionsModule } from './collections/collections.module';
 import { ProfileModule } from './profile/profile.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigurationWizardModule } from './configuration-wizard/configuration-wizard.module';
-import {PortalModule} from '@angular/cdk/portal';
+import { PortalModule } from '@angular/cdk/portal';
 
 /** Main Routing Module */
 import { AppRoutingModule } from './app-routing.module';
 import { DatePipe, LocationStrategy } from '@angular/common';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import {
+  TranslateLoader,
+  TranslateModule,
+  MissingTranslationHandler,
+  MissingTranslationHandlerParams
+} from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export class CustomMissingTranslationHandler implements MissingTranslationHandler {
+  handle(params: MissingTranslationHandlerParams): string {
+    // Remove the 'labels.catalogs.' prefix and return the fallback value
+    return params.key.replace('labels.catalogs.', '');
+  }
+}
 
 /**
  * App Module
@@ -58,11 +70,16 @@ export function HttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: (http: HttpClient, locationStrategy: LocationStrategy) => {
-          return new TranslateHttpLoader(http, `${ window.location.protocol }//${ window.location.host }${locationStrategy.getBaseHref()}/assets/translations/`, '.json');
+        useFactory: (httpBackend: HttpBackend, locationStrategy: LocationStrategy) => {
+          const http = new HttpClient(httpBackend);
+          return new TranslateHttpLoader(http, `/assets/translations/`, '.json');
         },
-        deps: [HttpClient, LocationStrategy]
-      }
+        deps: [
+          HttpBackend,
+          LocationStrategy
+        ]
+      },
+      missingTranslationHandler: { provide: MissingTranslationHandler, useClass: CustomMissingTranslationHandler }
     }),
     BrowserModule,
     BrowserAnimationsModule,
@@ -91,9 +108,13 @@ export function HttpLoaderFactory(http: HttpClient) {
     TasksModule,
     ConfigurationWizardModule,
     AppRoutingModule
+
   ],
-  declarations: [WebAppComponent, NotFoundComponent],
+  declarations: [
+    WebAppComponent,
+    NotFoundComponent
+  ],
   providers: [DatePipe],
   bootstrap: [WebAppComponent]
 })
-export class AppModule { }
+export class AppModule {}

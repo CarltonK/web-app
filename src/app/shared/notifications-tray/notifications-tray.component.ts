@@ -34,24 +34,25 @@ export class NotificationsTrayComponent implements OnInit, OnDestroy {
    * Shares, Savings, Deposits, Loans routes inaccessible because of dependency on entity ID.
    */
   routeMap: any = {
-    'client' : '/clients/',
-    'group' : '/groups/',
-    'loan': '/loans-accounts/',
-    'center' : '/centers/',
-    'shareAccount' : '/shares-accounts/',
-    'fixedDeposit' : '/fixed-deposits-accounts/',
-    'recurringDepositAccount': '/recurring-deposits-accounts/',
-    'savingsAccount' : '/savings-accounts/',
-    'shareProduct': '/products/share-products/',
-    'loanProduct' : '/products/loan-products/'
+    client: '/clients/',
+    group: '/groups/',
+    loan: '/loans-accounts/',
+    center: '/centers/',
+    shareAccount: '/shares-accounts/',
+    fixedDeposit: '/fixed-deposits-accounts/',
+    recurringDepositAccount: '/recurring-deposits-accounts/',
+    savingsAccount: '/savings-accounts/',
+    shareProduct: '/products/share-products/',
+    loanProduct: '/products/loan-products/'
   };
 
   /**
    * @param {NotificationsService} notificationsService Notifications Service
    */
   constructor(public notificationsService: NotificationsService) {
-    forkJoin([this.notificationsService.getNotifications(true), this.notificationsService.getNotifications(false)])
-    .subscribe((response: any[]) => {
+    forkJoin([
+      this.notificationsService.getNotifications(true, 9),
+      this.notificationsService.getNotifications(false, 9)]).subscribe((response: any[]) => {
       this.readNotifications = response[0].pageItems;
       this.unreadNotifications = response[1].pageItems;
       this.setNotifications();
@@ -78,12 +79,14 @@ export class NotificationsTrayComponent implements OnInit, OnDestroy {
    * Recursively fetch unread notifications.
    */
   fetchUnreadNotifications() {
-    this.notificationsService.getNotifications(false).subscribe((response: any) => {
+    this.notificationsService.getNotifications(false, 9).subscribe((response: any) => {
       this.unreadNotifications = this.unreadNotifications.concat(response.pageItems);
       this.setNotifications();
     });
     // this.mockNotifications(); // Uncomment for Testing.
-    this.timer = setTimeout(() => { this.fetchUnreadNotifications(); }, this.waitTime * 1000);
+    this.timer = setTimeout(() => {
+      this.fetchUnreadNotifications();
+    }, this.waitTime * 1000);
   }
 
   /**
@@ -107,5 +110,4 @@ export class NotificationsTrayComponent implements OnInit, OnDestroy {
       this.setNotifications();
     });
   }
-
 }
